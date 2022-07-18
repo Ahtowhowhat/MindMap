@@ -41,7 +41,7 @@ class ApplicationWindow(QMainWindow):
         self.modified = False
         self.graph_canvas = FigureCanvas(Figure(figsize=self.figsize, dpi=self.dpi))
         self._graph = Graph(self.figsize, self.dpi, self.fontsize)
-        self.filename = None
+        self.filename: str = ''
         self.ax = self.graph_canvas.figure.add_axes([0, 0, 1, 1])
         # self._graph.create_test()
         self._redraw()
@@ -51,7 +51,7 @@ class ApplicationWindow(QMainWindow):
         # self.ui.graph.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.MinimalViewportUpdate)
         # self.ui.graph.show()
         self.ui.selected_node.addItem('0')
-        self.ui.statusbar.showMessage(f'{self.filename if self.filename is not None else "Untitled"}', 0)
+        self.ui.statusbar.showMessage(f'{self.filename if self.filename else "Untitled"}', 0)
         # self.ui.selected_node.currentIndexChanged.connect(
         #     lambda: self.ui.statusbar.showMessage(f'Current node\'s ID : {self.ui.selected_node.currentText()}'))
         self.ui.add_button.clicked.connect(self._add_button_clicked)
@@ -189,7 +189,7 @@ class ApplicationWindow(QMainWindow):
                 self.ui.selected_node.setCurrentIndex(self.ui.selected_node.findText(str(ID)))
                 self._redraw(False)
         else:
-            self.ui.statusbar.showMessage(f'{self.filename if self.filename is not None else "Untitled"}', 0)
+            self.ui.statusbar.showMessage(f'{self.filename if self.filename else "Untitled"}', 0)
             if self.ui.selected_node.currentIndex() != -1:
                 self._graph.nodes_dict[int(self.ui.selected_node.currentText())].selected = False
                 self.ui.selected_node.setCurrentIndex(-1)
@@ -288,8 +288,8 @@ class ApplicationWindow(QMainWindow):
         self.figsize = (12.8, 7.2)
         self.dpi = 100
         self._graph = Graph(self.figsize, self.dpi, self.fontsize)
-        self.filename = None
-        self.ui.statusbar.showMessage(f'{self.filename if self.filename is not None else "Untitled"}', 0)
+        self.filename = ''
+        self.ui.statusbar.showMessage(f'{self.filename if self.filename else "Untitled"}', 0)
         self.ui.selected_node.clear()
         self.ui.selected_node.addItem('0')
         del self.graph_canvas
@@ -325,7 +325,7 @@ class ApplicationWindow(QMainWindow):
         if not fileDir:
             return
         self.filename = fileDir
-        self.ui.statusbar.showMessage(f'{self.filename if self.filename is not None else "Untitled"}', 0)
+        self.ui.statusbar.showMessage(f'{self.filename if self.filename else "Untitled"}', 0)
         with open(fileDir, 'rb') as f:
             del self._graph
             self._graph = pickle.load(f)
@@ -351,11 +351,11 @@ class ApplicationWindow(QMainWindow):
 
     @Slot()
     def _save(self):
-        if self.filename is not None:
+        if self.filename:
             with open(self.filename, 'wb') as f:
                 try:
                     pickle.dump(self._graph, f)
-                    self.ui.statusbar.showMessage(f'{self.filename if self.filename is not None else "Untitled"}', 0)
+                    self.ui.statusbar.showMessage(f'{self.filename if self.filename else "Untitled"}', 0)
                     self.modified = False
                     return True
                 except Exception:
@@ -379,7 +379,7 @@ class ApplicationWindow(QMainWindow):
         with open(fileDir, 'wb') as f:
             try:
                 pickle.dump(self._graph, f)
-                self.ui.statusbar.showMessage(f'{self.filename if self.filename is not None else "Untitled"}', 0)
+                self.ui.statusbar.showMessage(f'{self.filename if self.filename else "Untitled"}', 0)
                 self.modified = False
                 return True
             except IOError:
@@ -396,7 +396,8 @@ class ApplicationWindow(QMainWindow):
 
     @Slot()
     def _export(self):
-        fileDir, _ = QFileDialog.getSaveFileName(None, 'Saving', '', '.png(*.png);;.jpg(*.jpg)')
+        fileDir, _ = QFileDialog.getSaveFileName(None, 'Saving',
+                                                 self.filename.split('\\')[-1][:-6], '.png(*.png);;.jpg(*.jpg)')
         if not fileDir:
             return
         self.graph_canvas.figure.savefig(fileDir)
