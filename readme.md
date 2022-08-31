@@ -15,7 +15,7 @@ python main.py
 ```
 or you can just download the release file and run it on windows after unzip.
 
-###Usage
+### Usage
 Ctrl + direction keys: Adjust the structure of map.
 
 
