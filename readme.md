@@ -14,3 +14,6 @@ then Run.
 python main.py
 ```
 or you can just download the released version.
+
+-----
+PS: I'm a complete novice at pyside2 so that the code related to interaction may be shit.😜
